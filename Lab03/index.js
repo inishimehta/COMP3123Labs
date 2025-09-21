@@ -1,38 +1,46 @@
-var http = require("http");
-//TODO - Use Employee Module here
-console.log("Lab 03 -  NodeJs");
+// index.js
 
-//TODO - Fix any errors you found working with lab exercise
+const http = require("http");
+const employeeModule = require("./Employee");
 
-//Define Server Port
-const port = process.env.PORT || 8081
+console.log("Lab 03 - NodeJs");
 
-//Create Web Server using CORE API
+const port = process.env.PORT || 8081;
+
 const server = http.createServer((req, res) => {
-    if (req.method !== 'GET') {
-        res.end(`{"error": "${http.STATUS_CODES[405]}"}`)
-    } else {
-        if (req.url === '/') {
-            //TODO - Display message "<h1>Welcome to Lab Exercise 03</h1>"
-        }
+  if (req.method !== "GET") {
+    res.writeHead(405, { "Content-Type": "text/plain" });
+    return res.end(http.STATUS_CODES[405]);
+  }
 
-        if (req.url === '/employee') {
-            //TODO - Display all details for employees in JSON format
-        }
+  const url = req.url;
 
-        if (req.url === '/employee/names') {
-            //TODO - Display only all employees {first name + lastname} in Ascending order in JSON Array
-            //e.g. [ "Ash Lee", "Mac Mohan", "Pritesh Patel"]
-        }
+  if (url === "/" || url === "/index" || url === "/home") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    return res.end("<h1>Welcome to Lab Exercise 03</h1>");
+  }
 
-        if (req.url === '/employee/totalsalary') {
-            //TODO - Display Sum of all employees salary in given JSON format 
-            //e.g. { "total_salary" : 100 }  
-    }
-    res.end(`{"error": "${http.STATUS_CODES[404]}"}`)
-    }
-})
+  if (url === "/employee") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify(employeeModule.getAll()));
+  }
+
+  if (url === "/employee/names") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    const names = employeeModule.getNamesAscending();
+    return res.end(JSON.stringify(names));
+  }
+
+  if (url === "/employee/totalsalary") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    const total = employeeModule.getTotalSalary();
+    return res.end(JSON.stringify({ totalsalary: total }));
+  }
+
+  res.writeHead(404, { "Content-Type": "text/plain" });
+  return res.end(http.STATUS_CODES[404]);
+});
 
 server.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
-})
+  console.log(`Server listening on port ${port}`);
+});
